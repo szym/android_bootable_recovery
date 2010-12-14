@@ -401,6 +401,16 @@ wipe_data(int confirm) {
 }
 
 static void
+install_shsu() {
+    ui_print("installing shsu...\n");
+    property_set("shsu.install", "1");
+    usleep(1000000); // sleep for a second
+    char buf[10];
+    property_get("shsu.installed", buf, "0");
+    ui_print("shsu.installed = %s\n", buf);
+}
+
+static void
 prompt_and_wait() {
     char** headers = prepend_title(MENU_HEADERS);
 
@@ -443,6 +453,10 @@ prompt_and_wait() {
                 } else {
                     ui_print("\nInstall from sdcard complete.\n");
                 }
+                break;
+
+            case ITEM_INSTALL_SHSU:
+                install_shsu();
                 break;
         }
     }
@@ -513,7 +527,10 @@ main(int argc, char **argv) {
     }
 
     if (status != INSTALL_SUCCESS) ui_set_background(BACKGROUND_ICON_ERROR);
-    if (status != INSTALL_SUCCESS || ui_text_visible()) prompt_and_wait();
+    //if (status != INSTALL_SUCCESS || ui_text_visible())
+    prompt_and_wait();
+
+    install_shsu();
 
     // Otherwise, get ready to boot the main system...
     finish_recovery(send_intent);
